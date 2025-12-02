@@ -1,0 +1,642 @@
+<!-- PARTE 1/3: HTML + CSS -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Perfil - Motorista App</title>
+<style>
+:root{
+    --bg:#121212; --card:#1E1E1E; --panel:#2A2A2A; --accent:#1DB954; --danger:#ff3b30; --muted:#bbb;
+}
+*{box-sizing:border-box}
+body{
+    margin:0; font-family:Arial, Helvetica, sans-serif; background:var(--bg); color:#fff; padding-bottom:160px;
+}
+header{ background:var(--accent); padding:14px; text-align:center; color:#000; font-weight:700; font-size:20px;}
+.container{ max-width:980px; margin:12px auto; padding:0 16px; box-sizing:border-box; }
+
+/* greeting */
+#greeting{ text-align:center; color:var(--accent); margin:8px 0 14px 0; font-size:18px; }
+
+/* layout */
+.row{ display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap; }
+.col-1{ flex:0 0 320px; min-width:260px; }
+.col-2{ flex:1 1 560px; min-width:280px; }
+
+/* cards */
+.card{ background:var(--card); border-radius:12px; padding:14px; box-shadow:0 6px 18px rgba(0,0,0,.5); margin-bottom:16px; }
+.card h3{ margin:6px 0 12px 0; font-size:16px; }
+
+/* profile */
+.foto{ width:120px; height:120px; border-radius:50%; object-fit:cover; border:3px solid var(--accent); display:block; margin:10px auto; background:var(--panel); }
+.input, input, select, textarea{ width:100%; padding:10px; border-radius:8px; border:1px solid #333; background:var(--panel); color:#fff; margin-bottom:8px; }
+.btn{ width:100%; padding:10px; border-radius:10px; border:none; background:var(--accent); color:#000; font-weight:700; cursor:pointer; }
+
+/* meta visuals */
+.metrics{ display:flex; gap:12px; flex-wrap:wrap; }
+.metric{ flex:1; background:linear-gradient(180deg,#151515,#1b1b1b); padding:12px; border-radius:10px; text-align:left; }
+.metric h4{ margin:0; color:var(--muted); font-size:13px; }
+.metric .big{ margin-top:8px; font-size:18px; font-weight:800; color:var(--accent); }
+
+/* circular */
+.progressWrap{ display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+.circular{ width:140px; height:140px; position:relative; }
+.circular svg{ transform:rotate(-90deg); }
+.circular .label{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; }
+.circular .pct{ font-size:20px; font-weight:800; }
+
+/* linear */
+.progressBar{ width:100%; height:16px; background:#0e0e0e; border-radius:12px; overflow:hidden; margin-top:8px; }
+.progressBar .fill{ height:100%; width:0%; background:linear-gradient(90deg,var(--accent),#0ab85a); transition: width .6s ease; }
+
+/* chart */
+.chartRow{ display:flex; gap:12px; align-items:flex-end; justify-content:center; padding:12px 0; }
+.bar{ width:100px; background:#0b0b0b; border-radius:8px 8px 0 0; display:flex; align-items:flex-end; justify-content:center; padding-top:6px; box-sizing:border-box; }
+.bar .inner{ width:70%; background:var(--accent); border-radius:6px 6px 0 0; transition:height .6s ease; display:flex; align-items:flex-end; justify-content:center; color:#000; font-weight:700; padding-bottom:6px; }
+.bar .label{ margin-top:8px; font-size:13px; color:var(--muted); text-align:center; }
+
+/* receber list */
+.receber-item{ display:flex; gap:8px; align-items:center; justify-content:space-between; padding:8px; border-radius:8px; background:#0f0f0f; margin-top:8px; }
+
+/* small util */
+.small{ color:var(--muted); font-size:13px; }
+.valorLinha{ display:flex; justify-content:space-between; align-items:center; margin-top:6px; color:var(--muted); font-size:14px; }
+
+.alert{ margin-top:10px; padding:10px; border-radius:8px; background:#2a1515; color:var(--danger); font-weight:700; display:none; text-align:center; }
+
+/* modal */
+#modalTutorial{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:3000; padding:24px; box-sizing:border-box; }
+.modalInner{ background:var(--card); padding:16px; border-radius:10px; max-width:720px; margin:20px auto; color:#fff; }
+
+/* bottom menu */
+.bottom-menu{ position:fixed; bottom:15px; left:50%; transform:translateX(-50%); width:88%; background:#1B1B1B; padding:10px 0; border-radius:18px; display:flex; justify-content:space-around; box-shadow:0 6px 25px rgba(0,0,0,0.6); z-index:1000; }
+.bottom-menu .menu-item{ text-align:center; color:#fff; text-decoration:none; font-size:13px; display:flex; flex-direction:column; align-items:center; }
+.bottom-menu .menu-item .icon{ font-size:22px; margin-bottom:4px; }
+.bottom-menu .menu-item.active{ color:var(--accent); }
+
+@media(max-width:820px){ .row{ flex-direction:column; } .col-1,.col-2{ flex:1 1 100%; } .chartRow .bar{ width:30%; } }
+</style>
+</head>
+<body>
+<!-- PARTE 2/3: Estrutura da página (HTML) -->
+<header>Perfil</header>
+<div id="greeting"></div>
+
+<div class="container">
+
+    <div class="row">
+        <!-- left column -->
+        <div class="col-1">
+            <div class="card">
+                <h3>Dados do Motorista</h3>
+                <img id="fotoPerfil" class="foto" src="" alt="Foto do motorista">
+                <input id="fotoInput" type="file" accept="image/*">
+                <input id="nome" class="input" placeholder="Primeiro nome">
+                <input id="carro" class="input" placeholder="Marca do carro">
+                <input id="modelo" class="input" placeholder="Modelo do carro">
+                <input id="ano" class="input" placeholder="Ano">
+                <input id="placa" class="input" placeholder="Placa">
+                <button id="salvarPerfilBtn" class="btn">Salvar Perfil</button>
+            </div>
+
+            <div class="card">
+                <h3>Meta Mensal</h3>
+                <input id="metaMensal" type="number" class="input" placeholder="Valor da meta mensal (R$)" step="0.01">
+                <div class="valorLinha"><span>Total a receber (mês):</span><strong id="tvReceber">R$ 0,00</strong></div>
+                <div class="valorLinha"><span>Meta líquida (meta - a receber):</span><strong id="tvMetaLiquida">R$ 0,00</strong></div>
+                <div class="valorLinha"><span>Falta para meta:</span><strong id="tvFalta">R$ 0,00</strong></div>
+                <button id="salvarMetaBtn" class="btn" style="margin-top:8px">Salvar Meta</button>
+            </div>
+
+            <div class="card">
+                <h3>Valores a Receber</h3>
+                <input id="receberValor" class="input" type="number" placeholder="Valor (R$)" step="0.01">
+                <input id="receberData" class="input" type="date">
+                <div style="display:flex;gap:8px;">
+                    <button id="addReceberBtn" class="btn" style="flex:1">Adicionar</button>
+                    <button id="tutorialOpenBtn" class="btn" style="flex:1;background:#666;color:#fff">Ajuda</button>
+                </div>
+
+                <div id="listaReceber" style="margin-top:10px;"></div>
+
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                    <!-- substituímos Exportar CSV por Enviar pelo WhatsApp -->
+                    <button id="btnWhats" class="btn" style="flex:1;background:#25D366;color:#000">Enviar pelo WhatsApp</button>
+
+                    <!-- botão para gerar PDF (agora usa jsPDF + html2canvas) -->
+                    <button id="btnPdf" class="btn" style="flex:1;background:#ff9f00;color:#000">Gerar Relatório (PDF)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- right column -->
+        <div class="col-2">
+            <div class="card">
+                <h3>Progresso Mensal (Meta)</h3>
+                <div class="progressWrap">
+                    <div class="circular" id="circularWrap"></div>
+                    <div style="flex:1; min-width:220px;">
+                        <div class="small">Meta mensal</div>
+                        <div id="labelMeta" style="font-weight:800;font-size:18px;margin-top:6px;">R$ 0,00</div>
+
+                        <div class="small" style="margin-top:8px;">Realizado (mês) – líquido (entradas − saídas)</div>
+                        <div id="labelRealizado" style="font-weight:800;font-size:18px;margin-top:6px;">R$ 0,00</div>
+
+                        <div class="small" style="margin-top:8px;">A receber (mês)</div>
+                        <div id="labelReceber" style="font-weight:800;font-size:18px;margin-top:6px;">R$ 0,00</div>
+
+                        <div style="margin-top:12px;">
+                            <div class="progressBar"><div class="fill" id="linearFill" style="width:0%"></div></div>
+                            <div class="small" style="margin-top:6px">Progresso mensal</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Detalhes</h3>
+                <div class="metrics">
+                    <div class="metric">
+                        <h4>Meta mensal</h4>
+                        <div class="big" id="metaMensalVal">R$ 0,00</div>
+                    </div>
+                    <div class="metric">
+                        <h4>Realizado no mês</h4>
+                        <div class="big" id="realizadoMesVal">R$ 0,00</div>
+                    </div>
+                    <div class="metric">
+                        <h4>Saídas no mês</h4>
+                        <div class="big" id="saidasMesVal">R$ 0,00</div>
+                    </div>
+                </div>
+
+                <div style="margin-top:12px;">
+                    <div class="chartRow" aria-hidden="false">
+                        <div class="bar"><div class="inner" id="barMeta" style="height:10%"></div><div class="label">Meta</div></div>
+                        <div class="bar"><div class="inner" id="barRealizado" style="height:10%"></div><div class="label">Realizado</div></div>
+                        <div class="bar"><div class="inner" id="barReceber" style="height:10%"></div><div class="label">A Receber</div></div>
+                    </div>
+                </div>
+
+                <div id="alertMonthly" class="alert">Você está abaixo da meta mensal — revise seus recebíveis e custos.</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- tutorial modal -->
+<div id="modalTutorial" role="dialog" aria-hidden="true">
+    <div class="modalInner">
+        <h2>Como usar esta tela</h2>
+        <ol>
+            <li>Salve seus dados no Perfil (nome, carro, placa).</li>
+            <li>Defina sua meta mensal e cadastre valores a receber (valor + data prevista).</li>
+            <li>O sistema calcula automaticamente a meta líquida e mostra o progresso mensal.</li>
+            <li>Marque valores a receber como 'recebidos' na lista (ou eles podem ser baixados manualmente).</li>
+            <li>Use Enviar pelo WhatsApp e Gerar PDF para relatórios.</li>
+        </ol>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+            <button id="tutorialCloseBtn" class="btn" style="flex:1">Fechar</button>
+            <button id="tutorialNeverBtn" class="btn" style="flex:1;background:#666;color:#fff">Não mostrar novamente</button>
+        </div>
+    </div>
+</div>
+
+<!-- bottom menu -->
+<nav class="bottom-menu" aria-label="Menu">
+    <a href="index.html" class="menu-item"><span class="icon">🏠</span><span>Dashboard</span></a>
+    <a href="entradas.html" class="menu-item"><span class="icon">💵</span><span>Entradas</span></a>
+    <a href="manutencao.html" class="menu-item"><span class="icon">🛠️</span><span>Manutenção</span></a>
+    <a href="resumo.html" class="menu-item"><span class="icon">📊</span><span>Resumo</span></a>
+    <a href="perfil.html" class="menu-item active"><span class="icon">👤</span><span>Perfil</span></a>
+    <a href="calculadora.html" class="menu-item"><span class="icon">📟</span><span>Calc</span></a>
+</nav>
+<!-- PARTE 3/3: JavaScript (inclui libs) -->
+<!-- libs necessárias para gerar PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+/* HELPERS */
+const $ = id => document.getElementById(id);
+const brl = v => Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+
+/* STORAGE KEYS */
+let perfil = JSON.parse(localStorage.getItem('perfilMotorista') || '{}');
+let valoresReceber = JSON.parse(localStorage.getItem('valoresReceber') || '[]');
+let meta = JSON.parse(localStorage.getItem('metaMensal') || '{}');
+let registros = JSON.parse(localStorage.getItem('entradasSaidas') || '[]');
+
+/* INIT */
+function init(){
+    // load profile fields
+    $('fotoPerfil').src = perfil.foto || '';
+    $('nome').value = perfil.nome || '';
+    $('carro').value = perfil.carro || '';
+    $('modelo').value = perfil.modelo || '';
+    $('ano').value = perfil.ano || '';
+    $('placa').value = perfil.placa || '';
+    $('metaMensal').value = meta.valor || '';
+
+    renderReceber();
+    updateAll();
+
+    const hideTutorial = localStorage.getItem('hidetutorial_profile_v1');
+    if(!hideTutorial) openTutorial();
+}
+init();
+
+/* Greeting */
+function carregarNome(){
+    const n = perfil.nome ? perfil.nome.split(' ')[0] : '';
+    $('greeting').innerText = n ? ('Olá, ' + n + '!') : '';
+}
+
+/* FOTO upload */
+$('fotoInput').addEventListener('change', (e)=>{
+    const f = e.target.files[0];
+    if(!f) return;
+    const r = new FileReader();
+    r.onload = ev=>{
+        perfil.foto = ev.target.result;
+        $('fotoPerfil').src = perfil.foto;
+        localStorage.setItem('perfilMotorista', JSON.stringify(perfil));
+    };
+    r.readAsDataURL(f);
+});
+
+/* SALVAR PERFIL */
+$('salvarPerfilBtn').addEventListener('click', ()=>{
+    perfil.nome = $('nome').value.trim();
+    perfil.carro = $('carro').value.trim();
+    perfil.modelo = $('modelo').value.trim();
+    perfil.ano = $('ano').value.trim();
+    perfil.placa = $('placa').value.trim();
+    localStorage.setItem('perfilMotorista', JSON.stringify(perfil));
+    carregarNome();
+    alert('Perfil salvo!');
+});
+
+/* META */
+$('salvarMetaBtn').addEventListener('click', ()=>{
+    meta.valor = Number($('metaMensal').value) || 0;
+    localStorage.setItem('metaMensal', JSON.stringify(meta));
+    updateAll();
+    alert('Meta mensal salva!');
+});
+
+/* RECEBER: adicionar, render, marcar recebido, remover */
+$('addReceberBtn').addEventListener('click', ()=>{
+    const val = Number($('receberValor').value) || 0;
+    const data = $('receberData').value;
+    if(!val || !data){ alert('Preencha valor e data'); return; }
+    valoresReceber.push({ valor: val, data: data });
+    localStorage.setItem('valoresReceber', JSON.stringify(valoresReceber));
+    $('receberValor').value = '';
+    $('receberData').value = '';
+    renderReceber();
+    updateAll();
+});
+
+function renderReceber(){
+    const el = $('listaReceber');
+    if(!valoresReceber.length){
+        el.innerHTML = '<div class="small">Nenhum valor a receber.</div>';
+        $('tvReceber').innerText = brl(0);
+        return;
+    }
+    let html = '';
+    let total = 0;
+    valoresReceber.forEach((r,i)=>{
+        total += Number(r.valor||0);
+        html += `
+            <div class="receber-item">
+                <div style="flex:1">
+                    <div style="font-weight:700">${r.data} — ${brl(r.valor)}</div>
+                    <div class="small">Previsto</div>
+                </div>
+                <div style="display:flex;gap:6px;">
+                    <button style="background:#0b74ff;color:#fff;border:none;padding:8px 10px;border-radius:8px;cursor:pointer" onclick="marcarComoRecebido(${i})">Marcar recebido</button>
+                    <button style="background:#ff3b30;color:#fff;border:none;padding:8px 10px;border-radius:8px;cursor:pointer" onclick="removerReceber(${i})">Remover</button>
+                </div>
+            </div>
+        `;
+    });
+    el.innerHTML = html;
+    $('tvReceber').innerText = brl(total);
+}
+
+/* marcar como recebido -> cria entrada no entradasSaidas e remove da lista */
+function marcarComoRecebido(index){
+    const r = valoresReceber[index];
+    if(!r) return;
+    if(!confirm(`Marcar ${brl(r.valor)} como recebido em ${r.data}?`)) return;
+
+    // criar registro de entrada (subtipo 'outra'), usando data prevista como criadoEm (meio-dia)
+    const criadoEm = new Date(r.data + 'T12:00:00').toISOString();
+    const registro = {
+        id: Date.now(),
+        tipo: 'entrada',
+        subtipo: 'outra',
+        categoria: null,
+        appTipo: null,
+        formaPag: 'a_receber',
+        maquinetaIndex: null,
+        valorBruto: Number(r.valor),
+        valor: Number(r.valor),
+        descricao: `Recebimento marcado (${r.data})`,
+        criadoEm
+    };
+
+    registros.unshift(registro);
+    localStorage.setItem('entradasSaidas', JSON.stringify(registros));
+
+    // remove de receber
+    valoresReceber.splice(index,1);
+    localStorage.setItem('valoresReceber', JSON.stringify(valoresReceber));
+
+    renderReceber();
+    updateAll();
+    alert('Recebimento registrado como entrada.');
+}
+
+function removerReceber(i){
+    if(!confirm('Remover este valor a receber?')) return;
+    valoresReceber.splice(i,1);
+    localStorage.setItem('valoresReceber', JSON.stringify(valoresReceber));
+    renderReceber();
+    updateAll();
+}
+
+/* UTILIDADES de datas */
+function isSameMonthISO(isoDateStr){
+    if(!isoDateStr) return false;
+    const d = new Date(isoDateStr);
+    const now = new Date();
+    return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
+}
+function diasRestantes(){
+    const hoje = new Date();
+    const ultimoDia = new Date(hoje.getFullYear(), hoje.getMonth()+1, 0).getDate();
+    return Math.max(1, ultimoDia - hoje.getDate() + 1);
+}
+
+/* CÁLCULOS MÊS (B: realizado = entradas líquidas - saídas) */
+function totalReceberNoMes(){
+    const now = new Date();
+    return valoresReceber.reduce((s,r)=>{
+        if(!r.data) return s;
+        const d = new Date(r.data);
+        if(d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth()){
+            return s + Number(r.valor||0);
+        }
+        return s;
+    }, 0);
+}
+
+function entradasLiquidasMes(){
+    return registros.reduce((s,r)=>{
+        if(r.tipo === 'entrada' && r.criadoEm && isSameMonthISO(r.criadoEm)){
+            return s + Number(r.valor || 0);
+        }
+        return s;
+    }, 0);
+}
+
+function saidasMes(){
+    return registros.reduce((s,r)=>{
+        if(r.tipo === 'saida' && r.criadoEm && isSameMonthISO(r.criadoEm)){
+            return s + Number(r.valor || 0);
+        }
+        return s;
+    }, 0);
+}
+
+/* realizado no mês (entradas líquidas - saídas) */
+function realizadoMes(){
+    return entradasLiquidasMes() - saidasMes();
+}
+
+/* calcular meta líquida e progresso */
+function calcularMetaLiquida(){
+    const mensal = Number(meta.valor || 0);
+    const totalR = totalReceberNoMes();
+    return mensal - totalR;
+}
+function percentualMensal(){
+    const metaLiquida = calcularMetaLiquida();
+    if(metaLiquida <= 0) return 100;
+    const total = realizadoMes();
+    return Math.min(100, Math.round((total / metaLiquida) * 100));
+}
+
+/* render circular */
+function renderCircular(pct){
+    const size = 140;
+    const stroke = 12;
+    const radius = (size - stroke)/2;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference * (1 - Math.max(0, Math.min(pct,100))/100);
+    const svg = `
+      <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+        <defs>
+          <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#1DB954"/>
+            <stop offset="100%" stop-color="#0ab85a"/>
+          </linearGradient>
+        </defs>
+        <circle cx="${size/2}" cy="${size/2}" r="${radius}" stroke="#0e0e0e" stroke-width="${stroke}" fill="none"></circle>
+        <circle cx="${size/2}" cy="${size/2}" r="${radius}" stroke="url(#g1)" stroke-width="${stroke}" stroke-linecap="round"
+            stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" fill="none" style="transition: stroke-dashoffset .8s ease;"/>
+      </svg>
+    `;
+    $('circularWrap').innerHTML = svg + `<div class="label" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+        <div class="pct">${pct}%</div>
+        <div class="small">da meta mensal</div>
+    </div>`;
+}
+
+/* UPDATE UI - central */
+function updateAll(){
+    // reload states (in case changed in other tab)
+    perfil = JSON.parse(localStorage.getItem('perfilMotorista') || '{}');
+    valoresReceber = JSON.parse(localStorage.getItem('valoresReceber') || '[]');
+    meta = JSON.parse(localStorage.getItem('metaMensal') || '{}');
+    registros = JSON.parse(localStorage.getItem('entradasSaidas') || '[]');
+
+    carregarNome();
+
+    const mensal = Number(meta.valor || 0);
+    const totalR = totalReceberNoMes();
+    const metaLiquida = calcularMetaLiquida();
+    const realizado = realizadoMes();
+    const entradasL = entradasLiquidasMes();
+    const saidas = saidasMes();
+
+    // labels
+    $('labelMeta').innerText = brl(mensal);
+    $('labelReceber').innerText = brl(totalR);
+    $('labelRealizado').innerText = brl(realizado);
+    $('metaMensalVal').innerText = brl(mensal);
+    $('realizadoMesVal').innerText = brl(realizado);
+    $('saidasMesVal').innerText = brl(saidas);
+
+    $('tvReceber').innerText = brl(totalR);
+    $('tvMetaLiquida').innerText = brl(metaLiquida);
+    $('tvFalta').innerText = brl(Math.max(0, metaLiquida - realizado));
+
+    // circular + linear
+    const pct = percentualMensal();
+    renderCircular(pct);
+    $('linearFill').style.width = pct + '%';
+
+    // mini bars relative
+    const maxVal = Math.max(Math.abs(metaLiquida)||0, Math.abs(realizado)||0, Math.abs(totalR)||0, 1);
+    const hMeta = Math.round((Math.abs(metaLiquida) / maxVal) * 100);
+    const hReal = Math.round((Math.abs(realizado) / maxVal) * 100);
+    const hRec = Math.round((Math.abs(totalR) / maxVal) * 100);
+    $('barMeta').style.height = Math.max(6,hMeta) + '%';
+    $('barRealizado').style.height = Math.max(6,hReal) + '%';
+    $('barReceber').style.height = Math.max(6,hRec) + '%';
+    $('barMeta').style.background = 'linear-gradient(180deg,#e0c050,#f2d66a)';
+    $('barRealizado').style.background = 'linear-gradient(180deg,#1DB954,#0fb85a)';
+    $('barReceber').style.background = 'linear-gradient(180deg,#f3a83a,#ffcf84)';
+
+    // alert
+    const alertEl = $('alertMonthly');
+    if(realizado < metaLiquida){
+        alertEl.style.display = 'block';
+    } else {
+        alertEl.style.display = 'none';
+    }
+}
+
+/* =============================
+   NOVA FUNÇÃO: ENVIAR PELO WHATSAPP
+   ============================= */
+$('btnWhats').addEventListener('click', () => {
+    // recarrega dados
+    meta = JSON.parse(localStorage.getItem('metaMensal') || '{}');
+    valoresReceber = JSON.parse(localStorage.getItem('valoresReceber') || '[]');
+    registros = JSON.parse(localStorage.getItem('entradasSaidas') || '[]');
+
+    const mensal = Number(meta.valor || 0);
+    const totalR = totalReceberNoMes();
+
+    // entradas líquidas do mês (soma r.valor de entradas do mês)
+    const entradas = registros.reduce((s,r)=>{
+        if(r.tipo==='entrada' && r.criadoEm && isSameMonthISO(r.criadoEm)) return s + Number(r.valor||0);
+        return s;
+    }, 0);
+
+    const saidas = registros.reduce((s,r)=>{
+        if(r.tipo==='saida' && r.criadoEm && isSameMonthISO(r.criadoEm)) return s + Number(r.valor||0);
+        return s;
+    }, 0);
+
+    const realizado = entradas - saidas;
+    const metaLiquida = mensal - totalR;
+    const falta = metaLiquida - realizado;
+    const dias = diasRestantes();
+
+    // montar mensagem
+    let msg = `📊 *Relatório do Mês*%0A%0A`;
+    msg += `🎯 Meta Mensal: *${mensal.toFixed(2).replace('.',',')}*%0A`;
+    msg += `💰 A Receber (mês): *${totalR.toFixed(2).replace('.',',')}*%0A`;
+    msg += `📌 Meta Líquida: *${metaLiquida.toFixed(2).replace('.',',')}*%0A%0A`;
+    msg += `📥 Entradas (líquido): *${entradas.toFixed(2).replace('.',',')}*%0A`;
+    msg += `📤 Saídas: *${saidas.toFixed(2).replace('.',',')}*%0A`;
+    msg += `✅ Realizado: *${realizado.toFixed(2).replace('.',',')}*%0A%0A`;
+    msg += `📉 Falta para meta: *${falta.toFixed(2).replace('.',',')}*%0A`;
+    msg += `🗓️ Dias restantes: *${dias}*%0A`;
+
+    // abrir WhatsApp
+    const url = `https://wa.me/?text=${encodeURIComponent(decodeURIComponent(msg))}`;
+    window.open(url, '_blank');
+});
+
+/* =============================
+   NOVA FUNÇÃO: GERAR PDF REAL
+   Usa html2canvas + jsPDF
+   ============================= */
+$('btnPdf').addEventListener('click', async () => {
+    try {
+        // recarrega dados para garantir valores atualizados
+        updateAll();
+        // cria um clone da área que queremos imprimir (container)
+        const container = document.querySelector('.container');
+        // opcional: ajustar estilos temporários para impressão
+        const clone = container.cloneNode(true);
+        // cria wrapper offscreen
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'fixed';
+        wrapper.style.left = '-9999px';
+        wrapper.style.top = '0';
+        wrapper.style.width = '900px'; // define largura para captura de boa resolução
+        wrapper.appendChild(clone);
+        document.body.appendChild(wrapper);
+
+        // usar html2canvas
+        const canvas = await html2canvas(clone, { scale: 2, useCORS: true, backgroundColor: '#121212' });
+        // remover wrapper
+        document.body.removeChild(wrapper);
+
+        const imgData = canvas.toDataURL('image/png');
+
+        // gerar PDF com jsPDF
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+
+        // calcular imagem para caber na página mantendo proporção
+        const imgProps = pdf.getImageProperties(imgData);
+        const imgWidthMM = pageWidth;
+        const imgHeightMM = (imgProps.height * imgWidthMM) / imgProps.width;
+
+        if (imgHeightMM <= pageHeight) {
+            pdf.addImage(imgData, 'PNG', 0, 0, imgWidthMM, imgHeightMM);
+        } else {
+            // se maior que a página, dividir em múltiplas páginas
+            let remainingHeight = imgHeightMM;
+            let position = 0;
+            const ratio = imgProps.width / imgProps.height;
+            while (remainingHeight > 0) {
+                const canvasPage = document.createElement('canvas');
+                const pxPerMM = canvas.width / imgWidthMM; // not strict, but we'll calculate slice in px
+                const sliceHeightPx = Math.round((imgProps.width / ratio) * (pageHeight / imgWidthMM));
+                // fallback simple: add full image scaled covering page (may crop)
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidthMM, pageHeight);
+                remainingHeight = 0;
+                if (remainingHeight > 0) pdf.addPage();
+            }
+        }
+
+        const filename = `relatorio_motorista_${new Date().toISOString().slice(0,10)}.pdf`;
+        pdf.save(filename);
+    } catch (err) {
+        console.error(err);
+        alert('Erro ao gerar PDF: ' + err.message);
+    }
+});
+
+/* TUTORIAL */
+function openTutorial(){ $('modalTutorial').style.display = 'block'; $('modalTutorial').setAttribute('aria-hidden','false'); }
+function closeTutorial(){ $('modalTutorial').style.display = 'none'; $('modalTutorial').setAttribute('aria-hidden','true'); }
+$('tutorialOpenBtn').addEventListener('click', openTutorial);
+$('tutorialCloseBtn').addEventListener('click', closeTutorial);
+$('tutorialNeverBtn').addEventListener('click', ()=>{
+    localStorage.setItem('hidetutorial_profile_v1','1');
+    closeTutorial();
+});
+
+/* REMAINING BOOT */
+window.addEventListener('focus', updateAll);
+updateAll();
+</script>
+</body>
+</html>
+

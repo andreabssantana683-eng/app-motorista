@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <h1>🚖 RV RfViagens 🚖</h1>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root{
+      --bg1:#127e00;
+      --bg2:#ffffff;
+      --card:#0b1224aa;
+      --accent:#22c55e;
+      --accent-dark:#16a34a;
+      --text:#000000;
+      --muted:#ffffff;
+      --input-bg:#ffffff;
+      --input-border:#000000;
+      --chip:#0cb527;
+    }
+
+    body {
+      font-family:'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+      font-size:14px;
+      margin:0;
+      padding:24px 12px;
+      min-height:100vh;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% 10%, #1b2a55 0%, transparent 60%),
+        radial-gradient(1200px 600px at 90% 20%, #0e3b2f 0%, transparent 60%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      padding-bottom:140px; /* espaço para menu inferior */
+    }
+
+    h1 {
+      font-size:36px;
+      color:var(--input-bg);
+      text-align:center;
+      margin:0 0 18px;
+      letter-spacing:.5px;
+      opacity:.95;
+    }
+
+    .container {
+      background:var(--card);
+      backdrop-filter:blur(10px);
+      border:1px solid rgba(255,255,255,0.06);
+      border-radius:16px;
+      box-shadow:0 15px 35px rgba(0,0,0,0.35);
+      max-width:720px;
+      margin:0 auto;
+      padding:18px;
+    }
+
+    .container h1 {
+      font-size:18px;
+      color:var(--input-bg);
+      text-align:left;
+      margin-bottom:16px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .container h1::before {
+      content:"💻";
+      filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    }
+
+    label {
+      font-weight:600;
+      display:block;
+      margin:10px 0 6px;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    input[type="text"], input[type="number"], select {
+      width:80%;
+      padding:10px 12px;
+      border:1px solid var(--input-border);
+      border-radius:10px;
+      background-color:var(--input-bg);
+      color:var(--text);
+      font-size:14px;
+      transition:.2s;
+    }
+
+    .row {
+      display:flex;
+      gap:10px;
+    }
+    .row > div { flex:1; }
+
+    button {
+      background:linear-gradient(180deg, var(--accent), var(--accent-dark));
+      color:white;
+      padding:10px 14px;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      font-size:14px;
+      margin-top:14px;
+      margin-right:8px;
+      box-shadow:0 8px 18px rgba(22,163,74,0.25);
+    }
+
+    #resultado {
+      margin-top:18px;
+      background:rgba(34,197,94,0.12);
+      border:1px solid rgba(34,197,94,0.25);
+      padding:12px;
+      border-radius:12px;
+      font-size:13px;
+      font-weight:600;
+      white-space:pre-wrap;
+      color:#d1fae5;
+    }
+
+    /* MENU INFERIOR */
+    .bottom-menu {
+      position:fixed;
+      bottom:15px;
+      left:50%;
+      transform:translateX(-50%);
+      width:88%;
+      background:#1B1B1B;
+      padding:10px 0;
+      border-radius:18px;
+      display:flex;
+      justify-content:space-around;
+      box-shadow:0 6px 25px rgba(0,0,0,0.6);
+      z-index:1000;
+    }
+
+    .bottom-menu .menu-item {
+      text-align:center;
+      color:#fff;
+      text-decoration:none;
+      font-size:13px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+
+    .bottom-menu .menu-item .icon {
+      font-size:22px;
+      margin-bottom:4px;
+    }
+
+    .bottom-menu .menu-item.active {
+      color:var(--accent);
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Calculadora de viagens</h1>
+
+    <!-- SEU FORM COMPLETO -->
+    <!-- (Nada alterado no conteúdo do cálculo) -->
+
+    <label>👨🏽‍✈ Motorista:</label>
+    <input type="text" id="motorista" placeholder="Nome do motorista" />
+
+    <label>CPF/CNPJ:</label>
+    <input type="text" id="cpfCnpj" placeholder="Documento do motorista" />
+
+    <label>Marca/Modelo do Veículo:</label>
+    <input type="text" id="carro" placeholder="Ex: Gol 1.6 - Volkswagen" />
+
+    <div class="row">
+      <div>
+        <label>Placa:</label>
+        <input type="text" id="placa" placeholder="Ex: ABC-1234" />
+      </div>
+
+      <div>
+        <label>Cor:</label>
+        <input type="text" id="cor" placeholder="Ex: Branco" />
+      </div>
+    </div>
+
+    <label>🛫 Origem:</label>
+    <input type="text" id="origem" />
+
+    <label>🛬 Destino:</label>
+    <input type="text" id="destino" />
+
+    <label>Valor por KM (R$):</label>
+    <input type="number" id="valorKm" step="0.01" />
+
+    <label>KM Rodado:</label>
+    <input type="number" id="kmRodado" step="0.01" />
+
+    <label>Duração (min):</label>
+    <input type="number" id="duracaoMin" />
+
+    <label>Tipo de uso:</label>
+    <select id="tipoUso">
+      <option value="cidade">Cidade</option>
+      <option value="pista">Pista</option>
+    </select>
+
+    <label>Tipo de viagem:</label>
+    <select id="tipoViagem">
+      <option value="soIdaComVolta">Só ida (com volta)</option>
+      <option value="soIdaSemVolta">Só ida (sem volta)</option>
+      <option value="idaVoltaEspera">Ida/Volta com espera</option>
+      <option value="idaVolta">Ida/Volta</option>
+      <option value="bateVolta">Bate-volta</option>
+    </select>
+
+    <hr>
+    <h3 class="chip">Informações de GNV</h3>
+
+    <label>Valor cilindro cheio (R$):</label>
+    <input type="number" id="valorCilindro" step="0.01" onchange="salvarGNV()" />
+
+    <label>Autonomia cidade (KM):</label>
+    <input type="number" id="autonomiaCidade" onchange="salvarGNV()" />
+
+    <label>Autonomia pista (KM):</label>
+    <input type="number" id="autonomiaPista" onchange="salvarGNV()" />
+
+    <button onclick="calcularEstimativa()">Calcular Estimativa</button>
+    <button onclick="enviarWhatsApp()">Enviar via WhatsApp</button>
+
+    <div id="resultado"></div>
+  </div>
+
+  <!-- MENU INFERIOR -->
+  <nav class="bottom-menu">
+    <a href="index.html" class="menu-item"><span class="icon">🏠</span><span>Dashboard</span></a>
+    <a href="entradas.html" class="menu-item"><span class="icon">💵</span><span>Entradas</span></a>
+    <a href="manutencao.html" class="menu-item"><span class="icon">🛠️</span><span>Manutenção</span></a>
+    <a href="resumo.html" class="menu-item"><span class="icon">📊</span><span>Resumo</span></a>
+    <a href="perfil.html" class="menu-item"><span class="icon">👤</span><span>Perfil</span></a>
+    <a href="calculadora.html" class="menu-item active"><span class="icon">📟</span><span>Calc</span></a>
+  </nav>
+
+  <script>
+    /* TODO O SEU SCRIPT ORIGINAL DE CÁLCULO E AUTOSAVE AQUI
+       (NÃO ALTEREI NADA)
+    */
+
+    /* PERFIL */
+    const PERFIL_KEY = 'rfv_perfilMotorista';
+
+    function carregarPerfil(){
+      const salvo = localStorage.getItem(PERFIL_KEY);
+      if(!salvo) return;
+
+      const p = JSON.parse(salvo);
+      if(p.motorista) motorista.value = p.motorista;
+      if(p.cpfCnpj) cpfCnpj.value = p.cpfCnpj;
+      if(p.carro) carro.value = p.carro;
+      if(p.placa) placa.value = p.placa;
+      if(p.cor) cor.value = p.cor;
+    }
+
+    function salvarPerfilCampo(){
+      const p = {
+        motorista: motorista.value,
+        cpfCnpj: cpfCnpj.value,
+        carro: carro.value,
+        placa: placa.value,
+        cor: cor.value
+      };
+      localStorage.setItem(PERFIL_KEY, JSON.stringify(p));
+    }
+
+    ['motorista','cpfCnpj','carro','placa','cor'].forEach(id=>{
+      document.getElementById(id).addEventListener('input', salvarPerfilCampo);
+    });
+
+    /* GNV */
+    function salvarGNV(){
+      const dados = {
+        valorCilindro: Number(valorCilindro.value),
+        autonomiaCidade: Number(autonomiaCidade.value),
+        autonomiaPista: Number(autonomiaPista.value)
+      };
+      localStorage.setItem('gnvData', JSON.stringify(dados));
+    }
+
+    window.onload = function(){
+      carregarPerfil();
+      const gnv = JSON.parse(localStorage.getItem('gnvData'));
+      if(gnv){
+        valorCilindro.value = gnv.valorCilindro;
+        autonomiaCidade.value = gnv.autonomiaCidade;
+        autonomiaPista.value = gnv.autonomiaPista;
+      }
+    };
+
+    /* CÁLCULO */
+    let valorTotalBrutoGlobal = 0;
+    let duracaoMinGlobal = 0;
+
+    function calcularEstimativa(){
+      const valorKm = Number(valorKmInput.value);
+      const kmRodadoVal = Number(kmRodado.value);
+      const duracaoVal = Number(duracaoMin.value);
+
+      const gnv = JSON.parse(localStorage.getItem("gnvData"));
+      if(!gnv || !valorKm || !kmRodadoVal || !duracaoVal){
+        alert("Preencha todos os campos.");
+        return;
+      }
+
+      const tipoUsoVal = tipoUso.value;
+      const autonomia = tipoUsoVal === "cidade" ? gnv.autonomiaCidade : gnv.autonomiaPista;
+      const custoGnvKm = gnv.valorCilindro / autonomia;
+
+      let valorTotal = valorKm * kmRodadoVal;
+      let custoTotal = custoGnvKm * kmRodadoVal;
+
+      if(tipoViagem.value === "soIdaSemVolta"){
+        custoTotal *= 2;
+      }
+
+      const valorLiquido = valorTotal - custoTotal;
+
+      valorTotalBrutoGlobal = valorTotal;
+      duracaoMinGlobal = duracaoVal;
+
+      resultado.innerText =
+`Valor bruto: R$ ${valorTotal.toFixed(2)}
+Custo GNV: R$ ${custoTotal.toFixed(2)}
+Valor líquido: R$ ${valorLiquido.toFixed(2)}`;
+    }
+
+    function enviarWhatsApp(){
+      const msg = `Cálculo: R$ ${valorTotalBrutoGlobal.toFixed(2)}
+Duração: ${duracaoMinGlobal} min`;
+
+      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
+    }
+  </script>
+
+</body>
+</html>
